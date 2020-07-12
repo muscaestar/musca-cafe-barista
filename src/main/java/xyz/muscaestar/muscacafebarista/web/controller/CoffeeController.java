@@ -4,9 +4,13 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import xyz.muscaestar.muscacafebarista.service.CoffeeService;
 import xyz.muscaestar.muscacafebarista.web.model.CoffeeDto;
-import xyz.muscaestar.muscacafebarista.web.service.CoffeeService;
 
+import javax.validation.ConstraintViolationException;
+import javax.validation.Valid;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -30,7 +34,7 @@ public class CoffeeController {
     }
 
     @PostMapping
-    public ResponseEntity handlePost(@RequestBody CoffeeDto coffeeDto) {
+    public ResponseEntity handlePost(@Valid @RequestBody CoffeeDto coffeeDto) {
         CoffeeDto savedCoffee = coffeeService.saveNewCoffee(coffeeDto);
         HttpHeaders headers = new HttpHeaders();
         headers.add("Location", "/api/v1/coffee/" + savedCoffee.getId().toString());
@@ -38,7 +42,7 @@ public class CoffeeController {
     }
 
     @PutMapping("/{cfeId}")
-    public ResponseEntity handleUpdate(@PathVariable("cfeId") UUID cfeId, @RequestBody CoffeeDto coffeeDto) {
+    public ResponseEntity handleUpdate(@PathVariable("cfeId") UUID cfeId, @Valid @RequestBody CoffeeDto coffeeDto) {
         coffeeService.updateCoffee(cfeId, coffeeDto);
         return new ResponseEntity(HttpStatus.NO_CONTENT);
     }
@@ -47,5 +51,15 @@ public class CoffeeController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteCoffee(@PathVariable("cfeId") UUID cfeId) {
         coffeeService.deleteById(cfeId);
+    }
+
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<List<String>> validationHandler(ConstraintViolationException e) {
+        List<String> errors = new ArrayList<>(e.getConstraintViolations().size());
+        e.getConstraintViolations().forEach(constraintViolation -> {
+            errors.add(constraintViolation.getPropertyPath() + " : " + constraintViolation.getMessage());
+        });
+
+        return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
     }
 }
