@@ -1,4 +1,4 @@
-package xyz.muscaestar.muscacafebarista.web.service;
+package xyz.muscaestar.muscacafebarista.service;
 
 import org.springframework.stereotype.Service;
 import xyz.muscaestar.muscacafebarista.web.model.CustomerDto;
