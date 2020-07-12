@@ -7,10 +7,7 @@ import org.springframework.web.bind.annotation.*;
 import xyz.muscaestar.muscacafebarista.service.CoffeeService;
 import xyz.muscaestar.muscacafebarista.web.model.CoffeeDto;
 
-import javax.validation.ConstraintViolationException;
 import javax.validation.Valid;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
 /**
@@ -53,13 +50,4 @@ public class CoffeeController {
         coffeeService.deleteById(cfeId);
     }
 
-    @ExceptionHandler(ConstraintViolationException.class)
-    public ResponseEntity<List<String>> validationHandler(ConstraintViolationException e) {
-        List<String> errors = new ArrayList<>(e.getConstraintViolations().size());
-        e.getConstraintViolations().forEach(constraintViolation -> {
-            errors.add(constraintViolation.getPropertyPath() + " : " + constraintViolation.getMessage());
-        });
-
-        return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
-    }
 }
